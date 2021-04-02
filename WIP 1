@@ -1,0 +1,347 @@
+/*****************************************************************************
+ * 
+ *  Programmers and Purdue Email Addresses:
+ *  1. jone1890@purdue.edu
+ *  2. louckss@purdue.edu
+ *  3. jense105@purdue.edu (delete line if no third partner)
+ *  
+ *  Lab #: 08
+ *  
+ *  Academic Integrity Statement:
+ *  
+ *  We have not used source code obtained from any other unauthorized source,
+ *  either modified or unmodified.  Neither have we provided access to our code
+ *  to another. The effort we are submitting is our own original work.
+ *  
+ *  Day, Time, Location of Lab: Thursday, 3:30-4:20, Hampton 3314
+ *  
+ *  Program Description:
+ *  NEED TO DO
+ *  
+ * ***************************************************************************/
+#include <stdio.h>
+#include <math.h>
+
+//function declarations
+int userInput(int, int);
+int getDigits(int);
+int octalConv(int, int);
+void getChange(int, int, int*, int*, int*, int*, int*, int*);
+void parityCalc(int, int, int, int, int*, int*);
+void octalOutput(int, int, int, int, int, int);
+
+int main()
+{
+  //local declarations
+  int decVal1; //decimal value of the lowest number
+  int decVal2; //decimal value of the highest number
+  int *evenChange; //change in the number of even digits
+  int *oddChange; //change in the number of odd digits
+  int octStoreEven;
+  int octStoreOdd;
+  int decStoreEven;
+  int decStoreOdd;
+
+  //user input
+  decVal1 = userInput(0,0);
+  decVal2 = userInput(decVal1,1);
+
+  //greatest parity determination
+  getChange(decVal1, decVal2, &evenChange, &oddChange, &decStoreEven, &decStoreOdd, &octStoreEven, &octStoreOdd);
+
+  //output value
+  octalOutput(decStoreEven, octStoreEven, evenChange, decStoreOdd, octStoreOdd, oddChange);
+
+  return 0;
+}
+
+/***************************************************************************
+ * *
+ * *  Function Information
+ * *
+ * *  Name of Function: userInput
+ * *
+ * *  Function Return Type: int
+ * *
+ * *  Parameters (list data type, name, and comment one per line): N/A
+ * *
+ * *  Function Description:
+ * *  Function takes user input for the decimal input for the user given number
+ * *
+ * ***************************************************************************/
+int userInput(int dec, int mod)
+{
+  int decVal; //declares value for decimal user input
+  
+  if(mod == 0)
+  {
+    do
+    { 
+      printf("Enter starting decimal value -> ");
+      scanf("%d", &decVal);
+
+    if (decVal < 0)
+      {
+        printf("\nError! The decimal value provided should be non-negative.\n\n");
+      }
+    }while (decVal < 0);
+  }
+  
+  if(mod == 1)
+  {
+    do
+    { 
+      printf("Enter ending decimal value -> ");
+      scanf("%d", &decVal);
+
+      if (decVal < 0)
+      {
+        printf("\nError! The decimal value provided should be non-negative.\n\n");
+      }
+      if (decVal < dec)
+      {
+        printf("\nError! The ending value provided should be greater than %d", dec);
+      }
+    }while (decVal < 0 || decVal < dec);
+  }
+}
+
+/***************************************************************************
+ * *
+ * *  Function Information
+ * *
+ * *  Name of Function: getChange
+ * *
+ * *  Function Return Type: int
+ * *
+ * *  Parameters (list data type, name, and comment one per line):
+ * *   1.int decVal - user input for original decimal value
+ * *   2.int octVal - converted octal value
+ * *   3.int decCount - number of digits in the decimal value
+ * *   4.int octCount - number of digits in the octal value
+ * *   5.int *evenChange - change in the number of even digits
+ * *   6.int *oddChange - change in the number of odd digits
+ * *
+ * *  Function Description:
+ * *  NEED TO DO
+ * *
+ * ***************************************************************************/
+void getChange(int startVal, int endVal, int *evenChange, int *oddChange, int *decStoreEven, int *decStoreOdd, int *octStoreEven, int *octStoreOdd)
+{
+  //local declarations
+  int count; //initializes count variable for for loop
+  int octalNum; //stores octal conversion value
+  double evenChangeAbs;
+  double oddChangeAbs;
+  int decCount;
+  int octCount;
+  int tempEvenChange = 0;
+  int tempOddChange = 0;
+  
+  for(count = startVal; count < endVal; ++count)
+  {
+    decCount = getDigits(count);    //amount of digits in the decimal number
+    octalNum = octalConv(count, decCount);    //convert number to octal
+    octCount = getDigits(octalNum); //amount of digits in the octal number
+
+    parityCalc(count, octalNum, decCount, octCount, &tempEvenChange, &tempOddChange);
+    
+    if(fabs(evenChangeAbs) < fabs(tempEvenChange)) 
+    {
+      *evenChange = tempEvenChange;
+      *decStoreEven = count;
+      *octStoreEven = octalNum;
+      evenChangeAbs = tempEvenChange;
+    }
+    
+  	if(fabs(oddChangeAbs) < fabs(tempOddChange))
+    {
+      *oddChange = tempOddChange;
+      *decStoreOdd = count;
+      *octStoreOdd = octalNum;
+      oddChangeAbs = tempOddChange;
+    }
+  }
+}
+
+/***************************************************************************
+ * *
+ * *  Function Information
+ * *
+ * *  Name of Function: getDigits
+ * *
+ * *  Function Return Type: int
+ * *
+ * *  Parameters (list data type, name, and comment one per line):
+ * *   1.int decimalVal - decimal value given by user
+ * *
+ * *  Function Description:
+ * *  Function takes user input for the decimal input and returns number of digits for that value
+ * *
+ * ***************************************************************************/
+
+int getDigits(int decimalVal)
+{
+  int count; //declares variable for count in upcoming while loop
+  count = 0;
+  while (decimalVal != 0)
+  {
+    decimalVal /= 10;
+    ++count;
+  }
+  return(count);
+}
+
+/***************************************************************************
+ * *
+ * *  Function Information
+ * *
+ * *  Name of Function: octalConv
+ * *
+ * *  Function Return Type: int
+ * *
+ * *  Parameters (list data type, name, and comment one per line):
+ * *   1.int decVal - decimal value given by user
+ * *   2.int digits - number of digits in the decimal value
+ * *
+ * *  Function Description:
+ * *  Function takes user input for the decimal input and converts to octal
+ * *
+ * ***************************************************************************/
+
+int octalConv(int decVal, int digits)
+{
+  int quotient; //declares variable for the quotient in the following calculations
+  int count; //count for run times of the upcoming while loop
+  int remain; //stores the value for the remainder
+  int result; //stores value for the new octal conversion number
+
+  result = 0;
+  count = 0;
+
+  do
+  {
+    quotient = decVal / 8;
+    remain = decVal % 8;
+    result += remain * pow(10,count);
+    decVal = quotient;
+    ++count;
+  }while (count <= digits);
+
+  return(result);
+}
+
+/***************************************************************************
+ * *
+ * *  Function Information
+ * *
+ * *  Name of Function: parityCalc
+ * *
+ * *  Function Return Type: void
+ * *
+ * *  Parameters (list data type, name, and comment one per line):
+ * *   1.int decVal - user input for original decimal value
+ * *   2.int octVal - converted octal value
+ * *   3.int decCount - number of digits in the decimal value
+ * *   4.int octCount - number of digits in the octal value
+ * *   5.int *evenChange - change in the number of even digits
+ * *   6.int *oddChange - change in the number of odd digits
+ * *
+ * *  Function Description:
+ * *  Calculates the count of odd and even digit changes between the octal and decimal values
+ * *
+ * ***************************************************************************/
+
+void parityCalc(int decVal, int octVal, int decCount, int octCount, int *evenChange, int *oddChange)
+{
+  //local declarations
+  int decTemp; //temporary storage of decimal value
+  int octTemp; //temporary storage of octal value
+  int decEven = 0; //number of even digits in the decimal value
+  int decOdd = 0; //number of odd digits in the decimal value
+  int octEven = 0; //number of even digits in the octal value
+  int octOdd = 0; //number of odd digits in the octal value
+
+  //while loop for bringing out the digits
+  do
+  {
+    decTemp = decVal % 10;
+
+    if ((decTemp % 2 == 0))
+    {
+      ++decEven;
+    }
+    else if ((decTemp % 2 == 1))
+    {
+      ++decOdd;
+    }
+
+    decVal /= 10;
+    decCount--;
+
+  }while ((decCount + 1 > 1));
+
+  do
+  {
+    octTemp = octVal % 10;
+
+    if ((octTemp % 2 == 0))
+    {
+      ++octEven;
+    }
+    else if ((octTemp % 2 == 1))
+    {
+      ++octOdd;
+    }
+
+    octVal /= 10;
+    octCount--;
+
+  }while ((octCount + 1 > 1));
+
+  //set the even and odd changes
+  *evenChange = - octEven + decEven;
+  *oddChange = - octOdd + decOdd;
+}
+
+/***************************************************************************
+ * *
+ * *  Function Information
+ * *
+ * *  Name of Function: octalOutput
+ * *
+ * *  Function Return Type: void
+ * *
+ * *  Parameters (list data type, name, and comment one per line):
+ * *   1. int octVal - uses the value of the octal value
+ * *   2. int evenChange - uses the value for how many even change numbers there are 
+ * *   3. int oddChange - uses the value for how many odd change numbers there are
+ * *
+ * *  Function Description: 
+ * *  This function outputs the octal value, the even number change, and the 
+ * *  odd number change.
+ * *  
+ * ***************************************************************************/
+
+void octalOutput(int decValE, int octValE, int evenChange, int decValO, int octValO, int oddChange)
+{
+  printf("-=-=-=-=-=-=-=-=-=-=-=-=-=-Change-Decimal-=-Octal-\n");
+  
+  if (oddChange > 0)
+  {
+    printf("Largest odd digit change: +%6d %8d %8d\n", oddChange, decValO, octValO);
+  }
+  else
+  {
+    printf("Largest odd digit change: %6d %8d %8d\n", oddChange, decValO, octValO);
+  }
+
+  if (evenChange > 0)
+  {
+    printf("Largest even digit change: +%6d %8d %8d\n", evenChange, decValE, octValE);
+  }
+  else
+  {
+    printf("Largest even digit change: %6d %8d %8d\n", evenChange, decValE, octValE);
+  }
+}
